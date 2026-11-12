@@ -54,6 +54,30 @@ Building production-grade systems at the intersection of **quantitative finance*
 
 </td>
 </tr>
+<tr>
+<td width="50%" valign="top">
+
+### 🧰 [claude-skills](https://github.com/Philippeh5/claude-skills)
+**Native Claude Code Skills for Autonomous Engineering**
+* `autopilot` — Zero-confirmation batch execution with foreman delegation & watchdog recovery
+* `night` — Overnight autonomous loop: backlog → execute → verify → discover → repeat
+* `improve-system` — Analyzes history → proposes CLAUDE.md/skills/hooks upgrades
+* `paseo-poste` — Command post control: agents, terminals, tasks, bots, services via MCP
+* **Stack**: `Markdown`, `JavaScript`, `MCP`, `Claude Code`
+
+</td>
+<td width="50%" valign="top">
+
+### 🖥️ [paseo-poste](https://github.com/Philippeh5/paseo-poste)
+**Self-Hosted Command Post for Multi-Machine AI Orchestration**
+* Web dashboard (port 7070) — real-time agents, terminals, tasks, services
+* MCP server for Claude Code / Cursor / Windsurf integration
+* Telegram bot (`/poste` menu) — remote control from phone
+* Systemd deployment, Tailscale support, multi-machine (Oracle, Mini PC)
+* **Stack**: `TypeScript`, `Node.js`, `WebSocket`, `MCP`, `SQLite`, `systemd`
+
+</td>
+</tr>
 </table>
 
 ---
@@ -73,7 +97,7 @@ Building production-grade systems at the intersection of **quantitative finance*
 
 ## 🧰 Skills & Tooling
 
-**Claude Code Skills** (in `/Skills` folder of this profile):
+**Claude Code Skills** (see [`claude-skills`](https://github.com/Philippeh5/claude-skills) repo):
 
 | Skill | Purpose |
 | :--- | :--- |
