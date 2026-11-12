@@ -1,0 +1,171 @@
+#!/bin/sh
+# claude-foreman — fixed-argv Antigravity (agy) launcher.
+#
+# Transport wrappers run ONLY this script, never a hand-composed agy command:
+# argv is pinned here, so pipelines, substitutions, and nested agy invocations
+# cannot ride in through the wrapper's shell (SKILL.md hard rail 1 carve-out).
+#
+# ---------------------------------------------------------------------------
+# INVARIANT 1 — THE PROMPT GOES IN ARGV, NEVER ON STDIN.
+#
+# Observed 2026-08-26 on agy (Antigravity CLI), reproduced:
+#
+#     agy --print --model gemini-3.6-flash-low --mode plan  < ticket.txt
+#       -> --model SILENTLY IGNORED; served Claude Opus 4.6 (Thinking),
+#          and the prompt was never answered.
+#
+#     agy --print "<prompt text>" --model gemini-3.6-flash-low --mode plan
+#       -> --model honoured.
+#
+# So the stdin form does not merely lose the flag, it bills the most expensive
+# seat in the pool while the ledger records a cheap one. `codex-dispatch.sh`
+# pipes its ticket on stdin; copying that shape here is the single most
+# dangerous edit anyone can make to this file. Do not "simplify" it back.
+#
+# INVARIANT 2 — ARGV HAS A CEILING, SO OVERSIZE TICKETS ARE REFUSED, NOT CUT.
+# Because of invariant 1 the whole ticket travels as one argument. Windows caps
+# a command line near 32767 bytes and execve() caps a single argument at
+# MAX_ARG_STRLEN. A truncated ticket is a worker silently solving a different,
+# smaller problem — the failure mode is invisible in the output. We refuse.
+# Bulk context must travel as file paths inside the ticket (delegation.md),
+# which is the house rule anyway.
+#
+# INVARIANT 3 — NO SEAT EVIDENCE EXISTS FOR THIS TRANSPORT.
+# `agy --print` emits prose, not an event stream carrying a served-model field.
+# A model's claim about its own identity is not evidence (SKILL.md hard rail 5),
+# so every dispatch here is logged `seat: unverified` and must not carry
+# FRONTIER judgment or a verification verdict.
+# ---------------------------------------------------------------------------
+#
+# Usage: agy-dispatch.sh <ticket-file> <model> <read-only|workspace-write> <artifact-txt> [workdir] [timeout]
+# Emits a transport envelope (exit code / duration / pid file / seat evidence)
+# on stdout; agy's response goes to <artifact-txt>, stderr to <artifact-txt>.stderr,
+# the child PID to <artifact-txt>.pid (the "prove it stopped" handle).
+set -eu
+
+AGY_BIN="${FOREMAN_AGY_BIN:-agy}"
+command -v "$AGY_BIN" >/dev/null 2>&1 || {
+  # Default Windows install location, which is not always on PATH.
+  if [ -x "/c/Users/$USERNAME/AppData/Local/agy/bin/agy" ]; then
+    AGY_BIN="/c/Users/$USERNAME/AppData/Local/agy/bin/agy"
+  else
+    echo "BLOCKED: agy not found on PATH; set FOREMAN_AGY_BIN" >&2; exit 127
+  fi
+}
+
+[ $# -ge 4 ] || { echo "BLOCKED: usage: agy-dispatch.sh <ticket> <model> <read-only|workspace-write> <artifact.txt> [workdir] [timeout]" >&2; exit 64; }
+TICKET="$1"; MODEL="$2"; SANDBOX="$3"; OUT="$4"; WORKDIR="${5:-.}"; TIMEOUT="${6:-600}"
+
+# Model allowlist. NOT paranoia about shell metacharacters — a typo'd model id
+# is exactly the input that triggers the invariant-1 fallback, and a fallback
+# costs Opus money under a flash ledger line. Refresh with `agy models`.
+case "$MODEL" in
+  gemini-3.7-flash-low|gemini-3.7-flash-medium|gemini-3.7-flash-high) ;;
+  gemini-3.6-flash-low|gemini-3.6-flash-medium|gemini-3.6-flash-high) ;;
+  gemini-3.5-flash-low|gemini-3.5-flash-medium|gemini-3.5-flash-high) ;;
+  gemini-3.1-pro-low|gemini-3.1-pro-high) ;;
+  gpt-oss-120b-medium) ;;
+  claude-sonnet-4-6|claude-opus-4-6-thinking)
+    echo "BLOCKED: '$MODEL' is a Claude seat reached through agy. Route Claude work" >&2
+    echo "         through native Claude subagents instead — going through agy costs" >&2
+    echo "         Antigravity quota and yields no seat evidence." >&2
+    exit 64 ;;
+  *)
+    echo "BLOCKED: unknown agy model '$MODEL'. Allowlisted ids only (refresh with 'agy models')." >&2
+    echo "         An unrecognized id is silently substituted by the runtime — see invariant 1." >&2
+    exit 64 ;;
+esac
+
+case "$SANDBOX" in read-only|workspace-write) ;; *) echo "BLOCKED: invalid sandbox '$SANDBOX'" >&2; exit 64 ;; esac
+case "$TIMEOUT" in ''|*[!0-9]*) echo "BLOCKED: timeout must be integer seconds" >&2; exit 64 ;; esac
+[ -f "$TICKET" ] || { echo "BLOCKED: ticket not found: $TICKET" >&2; exit 66; }
+[ -d "$WORKDIR" ] || { echo "BLOCKED: workdir not found: $WORKDIR" >&2; exit 66; }
+
+# Artifact-path constraints: fresh .txt (or an existing regular file), never a
+# symlink, never the ticket itself — a dispatch must not be able to truncate
+# arbitrary wrapper-writable files through OUT.
+case "$OUT" in *.txt) ;; *) echo "BLOCKED: artifact path must end in .txt: $OUT" >&2; exit 64 ;; esac
+for P in "$OUT" "$OUT.stderr" "$OUT.pid"; do
+  [ -L "$P" ] && { echo "BLOCKED: artifact path is a symlink: $P" >&2; exit 64; }
+  [ -e "$P" ] && [ ! -f "$P" ] && { echo "BLOCKED: artifact path exists and is not a regular file: $P" >&2; exit 64; }
+  [ -e "$P" ] && [ "$P" -ef "$TICKET" ] && { echo "BLOCKED: artifact path aliases the ticket: $P" >&2; exit 64; }
+done
+[ "$OUT" = "$TICKET" ] && { echo "BLOCKED: artifact path equals ticket path" >&2; exit 64; }
+
+# --- invariant 2: refuse oversize tickets rather than truncate them ---
+# 30000 leaves headroom under the ~32767 Windows command-line cap for the rest
+# of argv (binary path, flags, model id) and for shell quoting overhead.
+ARGV_CEILING="${FOREMAN_AGY_ARGV_CEILING:-30000}"
+TICKET_BYTES=$(wc -c < "$TICKET" | tr -d ' ')
+if [ "$TICKET_BYTES" -gt "$ARGV_CEILING" ]; then
+  echo "BLOCKED: ticket is $TICKET_BYTES bytes, over the $ARGV_CEILING-byte argv ceiling." >&2
+  echo "         agy takes its prompt in argv (invariant 1), and an oversize argv is" >&2
+  echo "         truncated silently — the worker would answer a smaller question with" >&2
+  echo "         no visible error. Move bulk context into files and cite paths in the" >&2
+  echo "         ticket instead (delegation.md: 'bulk artifacts travel as file paths')." >&2
+  exit 64
+fi
+
+PROMPT=$(cat "$TICKET")
+[ -n "$PROMPT" ] || { echo "BLOCKED: ticket is empty" >&2; exit 64; }
+
+# read-only  -> plan mode: agy will not write.
+# workspace-write -> accept-edits: edit tools auto-approve, so a headless run
+#   cannot deadlock on an approval prompt it has no way to answer.
+# --sandbox stays on in both cases (terminal restrictions).
+case "$SANDBOX" in
+  read-only)       MODE="plan" ;;
+  workspace-write) MODE="accept-edits" ;;
+esac
+
+START=$(date +%s)
+
+# Run agy as a tracked child. agy has no -C/--cwd flag, so the working
+# directory is set by a subshell cd; --add-dir scopes the workspace to the same
+# place so the two cannot drift apart.
+set +e
+(
+  cd "$WORKDIR" || exit 66
+  exec "$AGY_BIN" --print "$PROMPT" \
+    --model "$MODEL" \
+    --mode "$MODE" \
+    --sandbox \
+    --add-dir "$WORKDIR" \
+    --print-timeout "${TIMEOUT}s"
+) > "$OUT" 2> "$OUT.stderr" &
+CPID=$!
+# The PID file is the LOST-protocol handle — if it cannot be written, paid work
+# must not continue untracked: kill the child and fail loudly.
+if ! printf '%s\n' "$CPID" > "$OUT.pid"; then
+  kill "$CPID" 2>/dev/null; wait "$CPID" 2>/dev/null
+  echo "BLOCKED: could not write pid file $OUT.pid; agy child killed — no untracked spend" >&2
+  exit 74
+fi
+trap 'kill "$CPID" 2>/dev/null; wait "$CPID" 2>/dev/null; echo "BLOCKED: launcher terminated; agy child $CPID killed and reaped" >&2; exit 143' INT TERM
+wait "$CPID"
+CODE=$?
+trap - INT TERM
+set -e
+END=$(date +%s)
+
+echo "exit code: $CODE"
+echo "duration: $((END - START))s"
+echo "pid file: $OUT.pid (child $CPID, reaped)"
+echo "requested model: $MODEL (mode=$MODE, sandbox=on, prompt via argv/${TICKET_BYTES}B)"
+
+# --- invariant 3: state the absence of evidence in full, every time ---
+echo "seat evidence: NONE — agy --print returns prose with no served-model field."
+echo "               Requested '$MODEL' via --model. Seat: unverified (Layer 0)."
+
+# Best-effort fallback tripwire. This is a heuristic on the response text, NOT
+# seat evidence: it can only ever raise suspicion, never certify. It exists
+# because the observed failure mode (invariant 1) announces itself in exactly
+# this way — an unbidden "You're now using <model>" greeting.
+if [ -f "$OUT" ] && head -c 400 "$OUT" 2>/dev/null | grep -qiE "you're now using|you are now using"; then
+  echo "WARNING: response opens with a model-switch greeting, the signature of the"
+  echo "         invariant-1 silent fallback. Treat this dispatch as SUSPECT: the"
+  echo "         served seat may not be '$MODEL'. Do not accept its output before"
+  echo "         checking the artifact by hand."
+fi
+
+exit "$CODE"

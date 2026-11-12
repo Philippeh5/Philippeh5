@@ -1,0 +1,465 @@
+{
+  "_about": "Machine-readable routing suggestions behind scripts/routing-card.py — a single consolidated front-end to the routing rules in routing.md/model-matrix.md, never a second, competing menu. 'settled' = the evidence clearly favors one seat: use it unless an allowed deviation reason applies. 'close' = reasonable seats differ by task: ask the user once per run (grouped, plain language) or, when unattended or told 'use your judgment', start from judgment_prior. Currency rule (model-matrix.md) applies to this whole file: model ids and prices are dated and move fast — if the live account disagrees, the live account wins and this file is stale; re-derive it, don't route off it blind.",
+  "_policy_2026-09-25": "Pool-preservation rebalance v1 (superseded in scale, not in mechanism, by _policy_2026-09-25_v2 below): Codex reserved for hard-coding, AGY made the default WORKHORSE/FAST pool. See v2 for the current, stronger policy.",
+  "_policy_2026-09-25_v2": "Codex-RESERVE rebalance (user-directed, same date, second revision — supersedes v1's 'Codex is reserved for hard-coding' with a harder 'Codex is reserved for exceptional cases only'). Trigger: the user reported real observed account usage — Codex >50% of its monthly quota already spent on a free/limited plan; agy Pro ~4% and agy Flash ~6% of a 5-hour window; agy's bundled Claude tiers (claude-sonnet-4-6, claude-opus-4-6-thinking) ~0% used. THESE ARE USER-STATED POLICY INPUTS, NOT TELEMETRY: `agy --help` exposes no usage/quota/limits subcommand (checked live this date — only agent(s)/changelog/help/install/mcp/mic-serve/models/plugin(s)/remote-control/update exist), so this file cannot read or verify them programmatically; nothing here computes or claims a `quota_remaining` value. When the user reports new percentages, update this note and the job orderings below by hand — do not wire up an automatic feed that doesn't exist. Consequence: Codex drops from 'first choice for hard-coding' (v1) to RESERVE everywhere — never selected automatically, reachable only via the existing `provider-down`/`bar`/`user` deviation reasons (allowed_deviation_reasons, unchanged) when every AGY tier AND the gateway seats have failed, or the user explicitly asks for it. AGY's own Claude-bundled tiers (claude-sonnet-4-6, claude-opus-4-6-thinking) are newly enabled as ordinary AGY seats — audited 2026-09-25: both dispatch successfully via direct `agy --print` (argv, plan mode; exit 0, correct proof string, no eligibility error, no substitution-tripwire text), the original block was a cost/evidence policy choice, not a technical failure, and using them still carries the exact same `seat: unverified (Layer 0)` tag as every other agy dispatch — they are AGY seats, never treated as the LEAD, never eligible for frontier-judgment or the accepting verifier verdict (those rows are untouched, see below). They are believed to draw on a separate Antigravity-bundled Claude allocation, not the LEAD's own Claude Code subscription — this is the user's own account-structure statement, not something this file can verify either; log it as such. Gemini AGY tiers (3.8/3.7/3.6 flash x low/medium/high, 3.1-pro x low/high) are now rotated across generations within the same class rather than always hitting one model, still task-fit + observed-availability based (no verified per-model quota exists, agy-workers.md 'Quota notes' — unchanged from v1). Grok is left exactly where v1 put it (untouched, not part of this ask). Workspace-write finding (2026-09-25 live test, 3/3 AGY tickets): `workspace-write` mode silently drops shell-command permission requests (empty artifact, exit 0) — see agy-workers.md 'AGY tickets: edit-only by default'; this file's routing choices are unaffected (a transport/ticket-writing concern, not a seat-selection one), but AGY receiving more work makes it matter more — documented, not fixed here (no permission mechanism changed without the user's explicit say-so).",
+  "_policy_2026-09-25_v3": "Gateway (claude-api/claude-openrouter) deep audit and capability test, same date, third revision (additive to v2, does not change the Codex-RESERVE or AGY-primary policy). Live-tested 2026-09-25: (1) alias maps drift — claude-api's opus (was live) is now dead (z-ai/glm-5-3, HTTP 404) and fable (was dead) is now live (deepseek-ai/deepseek-v4.1-flash); claude-openrouter's fable (was live) is now dead (stealth/ox-alpha, HTTP 400, 'testing period' ended) — see never_request and gateway-seats.md 'Live capability audit'. (2) Router-local failover confirmed real and distinct from provider failure: a dead alias fails loudly and fast (~1-2s, is_error true) and is NOT evidence the seat itself is down — every job below now tries each gateway's second live alias (openrouter: sonnet then opus; api: sonnet then fable) before moving to the next provider in the chain. (3) True inter-provider exhaustion (both live aliases of one gateway failing, forcing a hop to the other) could NOT be safely live-tested without corrupting a live credential file — documented as an untested gap, not claimed as a verified capability (gateway-seats.md). (4) Timeout behavior confirmed real and distinct from a model/provider failure (exit 143, explicit NOTE line) via a live forced-timeout test. (5) True OS-level parallelism confirmed live (two simultaneous dispatches, wall-clock ~= the slower one, not the sum). (6) Double-prompt / second opinion confirmed working: the same read-only code question dispatched to claude-api/sonnet and claude-openrouter/sonnet in parallel both returned correct, LEAD-verified-against-the-real-file answers — this is now an explicitly endorsed `task-fit` deviation for STANDARD tickets the LEAD judges important, and for HARD-class plan review/pre-integration checks (routing.md 'Second opinion policy'), never a default for mechanical work. (7) claude-api's `usage.output_tokens` field is unreliable (reports 0 even on a real multi-paragraph answer) — do not build cost estimates on it; claude-openrouter's is trustworthy. (8) Latency is wider than previously documented (1-60s observed, not 9-29s) — dispatch timeouts should default to 90s+. None of this elevates claude-api/claude-openrouter above AGY as the primary pool (not tested/justified, and would dilute the AGY-primary/Codex-RESERVE policy from v2) — they remain the fallback pool behind AGY, now demonstrably more resilient (intra-provider fallback) and demonstrably useful as a parallel second opinion, not just a fallback of last resort.",
+  "_policy_2026-09-28": "Gateway re-audit, targeted correction (additive to v2/v3, does not change AGY-primary/Codex-RESERVE). Live-tested 2026-09-28, re-running the exact v3 protocol: claude-api/opus still dead (unrecognized_model, unchanged), claude-api/sonnet still live (5-17s), claude-openrouter/opus and /sonnet still both live (11-102s), claude-openrouter/fable still dead (HTTP 400, unchanged). ONE change from v3: claude-api/fable, reported LIVE on 2026-09-25, timed out twice today (90s watchdog, then a 150s retry per the timeout-retry rule in routing.md) — not reproduced as dead like opus, not reproduced as live either. Per user policy: a degraded/unverified alias is treated the same as a confirmed-dead one for AUTOMATIC routing purposes (added to never_request as 'gateway-api:fable', distinct wording from the two confirmed-dead entries) until a clean re-test settles it either way — this is not a claim that the model is broken, only that it must not be picked automatically right now. Router-local failover, genuine OS-level parallelism, and the double-prompt second-opinion capability were all re-confirmed live today with a fresh, real code-review question (not a repeat of the 09-25 ping) — see routing.md 'Second opinion policy' addendum and gateway-seats.md 'Update 2026-09-28'. Per explicit user instruction this run: Codex was not used at all (reserve, untouched), and true inter-provider exhaustion remains untested (same documented gap as v3 — still would require corrupting a live credential file to force).",
+  "verified": "2026-09-28",
+  "stale_after_days": 14,
+  "prefs_expire_days": 30,
+  "known_models": {
+    "claude": [
+      "opus",
+      "fable",
+      "sonnet",
+      "haiku"
+    ],
+    "codex": [
+      "gpt-5.6-sol",
+      "gpt-5.6-terra",
+      "gpt-5.6-luna"
+    ],
+    "grok": [
+      "grok-4.6",
+      "grok-4.5"
+    ],
+    "agy": [
+      "gemini-3.8-flash-low",
+      "gemini-3.8-flash-medium",
+      "gemini-3.8-flash-high",
+      "claude-sonnet-4-6",
+      "claude-opus-4-6-thinking",
+      "gpt-oss-120b-medium"
+    ],
+    "gateway-openrouter": [
+      "opus",
+      "sonnet",
+      "fable"
+    ],
+    "gateway-api": [
+      "opus",
+      "sonnet"
+    ]
+  },
+  "never_request": {
+    "gpt-5.6-sol": "NOT ENTITLED on this machine's ChatGPT login (HTTP 400, measured 2026-08-26) — codex-workers.md/routing.md; re-verify per account before assuming this still holds",
+    "gateway-openrouter:haiku": "silently substituted by the sonnet-alias model — launcher refuses it (routing.md, model-matrix.md, measured 2026-08-26)",
+    "gateway-api:haiku": "same silent substitution as openrouter — launcher refuses it",
+    "gateway-api:opus": "maps to z-ai/glm-5-3, HTTP 404 unrecognized_model (live-tested 2026-09-25) — NOTE this alias map has already flipped once (opus was live and fable was dead on 2026-08-26; now the reverse) and will likely drift again — re-verify with a live dispatch, not just this file, before trusting either direction (gateway-seats.md 'Live capability audit')",
+    "gateway-openrouter:fable": "maps to stealth/ox-alpha, HTTP 400 'testing period' ended (live-tested 2026-09-25) — was live 2026-08-26; the error message names z-ai/glm-5.3-flash as the intended replacement, not yet reflected in this machine's alias map — re-verify before assuming either direction",
+    "agy:gpt-oss-120b-medium": "returns a 503 eligibility error on this account (measured 2026-08-26, agy-workers.md) — not entitled, unlike claude-sonnet-4-6/claude-opus-4-6-thinking which were re-audited and unblocked 2026-09-25 (see _policy_2026-09-25_v2)",
+    "gateway-api:fable": "DEGRADED/UNVERIFIED (live-tested 2026-09-28): 2 consecutive timeouts (90s watchdog, then a 150s retry per the timeout-retry rule) — NOT the same as gateway-api:opus above, which fails fast and loud (HTTP 404). This is a transport-layer non-answer, not a confirmed-dead alias, and not confirmed live either (it was reported LIVE on 2026-09-25 — see _policy_2026-09-28). Excluded from automatic routing until a clean re-test settles it either way; re-test manually with a longer watchdog (200s+) before removing this entry."
+  },
+  "allowed_deviation_reasons": [
+    "provider-down: the access check or a dispatch showed the seat unusable this session",
+    "consent: the seat's provider needs the user's consent and does not have it yet",
+    "context: the ticket exceeds the seat's context ceiling or crosses Grok's 200K price cliff",
+    "bar: the lead judges the seat cannot clear this ticket's quality bar (First Law) — name the specific risk; the record then tests the judgment",
+    "user: the user asked for a different seat (this session or in the prompt)",
+    "record: the crew-performance record shows the seat failing on this task shape",
+    "tools: the ticket needs a tool or transport the seat lacks",
+    "task-fit: close-call rows only — a named strength of another listed option matters for this ticket",
+    "exempt: a single-file change with no logic content needs no verifier (SKILL.md 'Verify like you trust no one')"
+  ],
+  "forbidden_reasons": [
+    "transport overhead",
+    "wrapper overhead",
+    "a Claude worker is simpler",
+    "the job is small"
+  ],
+  "jobs": [
+    {
+      "id": "mechanical",
+      "label": "TRIVIAL/FAST: bulk docstrings, annotations, extraction, scanning, repetitive edits a single command cannot do; small CSS/UI tweaks, simple CRUD, renames, docs, grep/search, small localized bugs, simple tests, reconnaissance, trivial edits — Codex never automatic here",
+      "class": "FAST",
+      "kind": "settled",
+      "evidence": "policy (2026-09-25_v2 Codex-RESERVE rebalance) over model-matrix.md Table 2/5",
+      "default": [
+        {
+          "provider": "agy",
+          "model": "gemini-3.8-flash-low",
+          "sandbox": "workspace-write"
+        }
+      ],
+      "fallbacks": [
+        {
+          "provider": "agy",
+          "model": "gemini-3.8-flash-low",
+          "sandbox": "workspace-write"
+        },
+        {
+          "provider": "gateway-openrouter",
+          "model": "sonnet"
+        },
+        {
+          "provider": "gateway-openrouter",
+          "model": "opus",
+          "note": "intra-provider fallback if sonnet fails — live-tested 2026-09-25, see gateway-seats.md"
+        },
+        {
+          "provider": "gateway-api",
+          "model": "sonnet"
+        },
+        {
+          "provider": "gateway-api",
+          "model": "fable",
+          "note": "EXCLUDED 2026-09-28 — DEGRADED/UNVERIFIED (2 consecutive timeouts), see never_request; routing-card.py skips it automatically"
+        },
+        {
+          "provider": "claude",
+          "model": "haiku"
+        }
+      ],
+      "why": "AGY flash-low is the default FAST pool; the two other generations (3.8, 3.6) are task-fit-equivalent siblings tried next, not a different quota (agy-workers.md 'Quota notes' — still no verified per-model quota exists; this is availability rotation, not load-balancing a known pool). Codex (even luna, the cheap tier) is deliberately absent from this chain under the 2026-09-25_v2 policy: Codex is >50% through a limited monthly quota per the user's own observation, so it is never an automatic FAST fallback — only reachable via an explicit `provider-down`/`bar`/`user` deviation when AGY AND both gateway seats have failed. Each gateway's second alias is tried BEFORE leaving that gateway (2026-09-25_v3, gateway audit) — a dead alias is a model failure, not a provider failure (routing.md 'Router-local failover'); only move to the other gateway once both of a seat's live aliases have failed. Gateway seats sit ahead of the native haiku fallback because this job's tasks are rarely one-word trivia; do not route an actually one-word/one-line question to gateway (routing.md, Table 5 routing-floor note) — use haiku for that specific shape."
+    },
+    {
+      "id": "standard-coding",
+      "label": "STANDARD/WORKHORSE: well-specified implementation, tests, refactors, normal multi-file edits, CRUD, UI, classic bugs, moderate refactors (<200K context) — Codex never automatic here",
+      "class": "WORKHORSE",
+      "kind": "settled",
+      "evidence": "policy (2026-09-25_v2 Codex-RESERVE rebalance)",
+      "default": [
+        {
+          "provider": "agy",
+          "model": "gemini-3.8-flash-high",
+          "sandbox": "workspace-write"
+        }
+      ],
+      "fallbacks": [
+        {
+          "provider": "agy",
+          "model": "gemini-3.8-flash-medium",
+          "sandbox": "workspace-write"
+        },
+        {
+          "provider": "agy",
+          "model": "gemini-3.8-flash-high",
+          "sandbox": "workspace-write"
+        },
+        {
+          "provider": "gateway-openrouter",
+          "model": "sonnet"
+        },
+        {
+          "provider": "gateway-openrouter",
+          "model": "opus",
+          "note": "intra-provider fallback if sonnet fails — live-tested 2026-09-25"
+        },
+        {
+          "provider": "gateway-api",
+          "model": "sonnet"
+        },
+        {
+          "provider": "gateway-api",
+          "model": "fable",
+          "note": "EXCLUDED 2026-09-28 — DEGRADED/UNVERIFIED (2 consecutive timeouts), see never_request; routing-card.py skips it automatically"
+        },
+        {
+          "provider": "claude",
+          "model": "sonnet",
+          "effort": "high"
+        }
+      ],
+      "why": "AGY's standard/medium-high flash tier is default; the fallback ladder rotates across the same class on other generations (3.7-medium, 3.8-high, 3.6-high) before leaving AGY — task-fit + observed-availability, not quota-balancing (no verified per-model quota exists). Gateway seats are the pool behind AGY because they are an independent credential from the LEAD's own allowance — each gateway's second live alias is tried before leaving it (2026-09-25_v3 gateway audit; a dead alias is a model failure, not a provider failure). Claude sonnet is last resort because it is the only option here that drains the LEAD's own allowance. Codex and Grok are deliberately ABSENT from this chain under 2026-09-25_v2 (v1 kept both as late fallbacks here; v2 removes them — this class never needs Codex-level reasoning, and Codex's >50%-consumed quota makes it a reserve, not a fallback tier, for routine work). Deviate with `bar` when AGY visibly can't clear this ticket's quality bar — reroute to hard-coding, don't silently downgrade to Codex from here. For a STANDARD ticket the LEAD judges important-but-not-HARD (an ambiguous requirement, a tricky-but-not-architectural bug, a choice between two implementations), a `task-fit` deviation to dispatch this ticket TWICE — once to AGY, once to a gateway seat (or to both gateways) as a second opinion — is legitimate per routing.md 'Second opinion policy'; never do this by default for mechanical/obvious work (forbidden_reasons: no wasted double-dispatch on a clear ticket)."
+    },
+    {
+      "id": "hard-coding",
+      "label": "HARD/EXCEPTIONAL: big multi-file implementation, architecture-heavy changes, important refactors, hard/tangled dependencies, hard debugging-as-implementation, risky changes, tricky algorithms/concurrency, cross-cutting changes needing strong autonomy — Codex is RESERVE (last resort), not first choice",
+      "class": "FRONTIER",
+      "kind": "settled",
+      "evidence": "policy (2026-09-25_v2 Codex-RESERVE rebalance) — supersedes v1, which made this class Codex-first; v2 moves Codex to reserve everywhere given the user's observed >50% monthly-quota consumption on a free/limited plan",
+      "default": [
+        {
+          "provider": "agy",
+          "model": "gemini-3.1-pro-high",
+          "sandbox": "workspace-write"
+        }
+      ],
+      "fallbacks": [
+        {
+          "provider": "agy",
+          "model": "claude-sonnet-4-6",
+          "sandbox": "workspace-write"
+        },
+        {
+          "provider": "agy",
+          "model": "claude-opus-4-6-thinking",
+          "sandbox": "workspace-write"
+        },
+        {
+          "provider": "claude",
+          "model": "opus",
+          "effort": "high"
+        },
+        {
+          "provider": "grok",
+          "model": "grok-4.6",
+          "effort": "xhigh"
+        },
+        {
+          "provider": "gateway-openrouter",
+          "model": "sonnet"
+        },
+        {
+          "provider": "gateway-openrouter",
+          "model": "opus",
+          "note": "intra-provider fallback — live-tested 2026-09-25"
+        },
+        {
+          "provider": "gateway-api",
+          "model": "sonnet"
+        },
+        {
+          "provider": "gateway-api",
+          "model": "fable",
+          "note": "EXCLUDED 2026-09-28 — DEGRADED/UNVERIFIED (2 consecutive timeouts), see never_request; routing-card.py skips it automatically"
+        },
+        {
+          "provider": "codex",
+          "model": "gpt-5.6-sol",
+          "effort": "high"
+        },
+        {
+          "provider": "codex",
+          "model": "gpt-5.6-terra"
+        },
+        {
+          "provider": "claude",
+          "model": "fable",
+          "premium": true,
+          "effort": "high"
+        }
+      ],
+      "why": "AGY's POWER tier (gemini-3.1-pro-high) is default for hard implementation; if it can't clear the bar, the audited-and-newly-enabled Claude-bundled AGY seats (claude-sonnet-4-6 for general hard reasoning, claude-opus-4-6-thinking only if that still isn't enough) are tried next — both are still AGY seats (`seat: unverified (Layer 0)`, never LEAD-equivalent), and the user reports them at ~0% of a separate Antigravity-bundled allocation (user-stated, not measured — see _policy_2026-09-25_v2). Claude opus (LEAD-pool) and Grok xhigh remain available next, unchanged in priority from v1. Gateway seats (independent credential) come before Codex now. Codex (sol, then terra) is RESERVE: it sits at the bottom of this already-hard-only class, reachable automatically only when every AGY tier, Claude opus, Grok, and both gateway seats have failed — or immediately via an explicit `user`/`bar` deviation for a task the LEAD judges exceptionally complex. This is the only job where Codex still appears at all in an automatic chain; every other job's Codex fallback was removed in v2. Because this class carries real judgment risk, a `task-fit` deviation to run a gateway seat (claude-api and/or claude-openrouter, at sonnet) IN PARALLEL with the AGY worker as a genuine second opinion — before dispatch (plan review), or before integration (comparing the AGY worker's diff against an independent read) — is explicitly endorsed here (routing.md 'Second opinion policy'); the LEAD compares both, never accepts a claim solely because two seats agree, and verifies any code-related claim against the actual repository."
+    },
+    {
+      "id": "frontier-judgment",
+      "label": "Architecture, ambiguous debugging, final judgment",
+      "class": "FRONTIER",
+      "kind": "settled",
+      "evidence": "policy (routing.md, model-matrix.md Table 5)",
+      "default": [
+        {
+          "provider": "claude",
+          "model": "LEAD",
+          "effort": "session"
+        }
+      ],
+      "fallbacks": [
+        {
+          "provider": "claude",
+          "model": "opus"
+        },
+        {
+          "provider": "claude",
+          "model": "fable",
+          "premium": true
+        }
+      ],
+      "why": "judgment stays with the LEAD or a frontier Claude subagent; Grok, luna, agy, and the gateway seats are never eligible here (model-matrix.md Table 5: 'Never')."
+    },
+    {
+      "id": "blind-verifier",
+      "label": "Independent verification of any behavior-changing change (accepting verdict)",
+      "class": "FRONTIER",
+      "kind": "settled",
+      "evidence": "policy (SKILL.md 'Verify like you trust no one', verification.md Layer 0)",
+      "default": [
+        {
+          "provider": "claude",
+          "model": "opus",
+          "effort": "high",
+          "note": "Agent tool: subagent_type foreman-verifier, model \"opus\" — never fresh-context-only on a mid-tier LEAD without checking class first"
+        }
+      ],
+      "fallbacks": [],
+      "no_agent_tool": "No Agent tool: apply the disclosed reduced-assurance rule (SKILL.md) with the best independent seat available (a Codex read-only reviewer where present) — never park silently and never treat a billed-tier or unverified seat's verdict as accepting.",
+      "why": "the accepting verdict is always the Claude verifier — Codex is requested-tier, Grok/agy/gateway are billed-tier or unverified, and none of the three ever leads with a verdict (model-matrix.md Table 5, verification.md Layer 0)."
+    },
+    {
+      "id": "off-family-review",
+      "label": "Off-family read-only review when Claude built a behavior-changing change",
+      "class": "FRONTIER-advisory",
+      "kind": "settled",
+      "evidence": "SKILL.md 'Route to what is actually there'",
+      "default": [
+        {
+          "provider": "codex",
+          "model": "gpt-5.6-sol",
+          "effort": "medium",
+          "sandbox": "read-only"
+        }
+      ],
+      "fallbacks": [
+        {
+          "provider": "grok",
+          "model": "grok-4.6",
+          "effort": "medium",
+          "sandbox": "read-only"
+        },
+        {
+          "provider": "gateway-openrouter",
+          "model": "sonnet",
+          "effort": "n/a",
+          "sandbox": "read-only"
+        },
+        {
+          "provider": "gateway-openrouter",
+          "model": "opus",
+          "effort": "n/a",
+          "sandbox": "read-only",
+          "note": "intra-provider fallback — live-tested 2026-09-25"
+        },
+        {
+          "provider": "agy",
+          "model": "gemini-3.1-pro-high",
+          "effort": "n/a",
+          "sandbox": "read-only"
+        }
+      ],
+      "why": "a same-family verifier shares the builder's blind spots; Codex read-only is the strongest cross-family second opinion when present, Grok the cheap adversarial read, the gateway seat the cheapest off-family read when Codex is absent, agy the last resort — confirm every citation before acting on any of them."
+    },
+    {
+      "id": "adversarial-review",
+      "label": "Adversarial plan or design review, second opinions",
+      "class": "FRONTIER-advisory",
+      "kind": "settled",
+      "evidence": "model-matrix.md Table 4b (output-price math + measured plan review)",
+      "default": [
+        {
+          "provider": "grok",
+          "model": "grok-4.6",
+          "effort": "medium",
+          "sandbox": "read-only"
+        }
+      ],
+      "fallbacks": [
+        {
+          "provider": "codex",
+          "model": "gpt-5.6-sol",
+          "effort": "medium",
+          "sandbox": "read-only"
+        }
+      ],
+      "why": "review is reasoning-heavy and output-light; Grok 4.6 is cheapest relative to capability there (2.4x cheaper than Opus 5 for the same review). Hard operating rule: Grok's non-hallucination rate is ~65.7% — confirm every citation against the named file or line before acting on it (model-matrix.md Table 4b)."
+    },
+    {
+      "id": "large-context",
+      "label": "Implementation needing more than ~200K tokens of context",
+      "class": "WORKHORSE",
+      "kind": "settled",
+      "evidence": "published Grok pricing policy (model-matrix.md Table 3); agy context ceilings are unmeasured (model-matrix.md Table 1) so this job stays off AGY until they're known",
+      "default": [
+        {
+          "provider": "claude",
+          "model": "sonnet",
+          "effort": "high"
+        }
+      ],
+      "fallbacks": [
+        {
+          "provider": "gateway-openrouter",
+          "model": "sonnet"
+        },
+        {
+          "provider": "gateway-openrouter",
+          "model": "opus",
+          "note": "intra-provider fallback — live-tested 2026-09-25"
+        },
+        {
+          "provider": "gateway-api",
+          "model": "sonnet"
+        },
+        {
+          "provider": "gateway-api",
+          "model": "fable",
+          "note": "EXCLUDED 2026-09-28 — DEGRADED/UNVERIFIED (2 consecutive timeouts), see never_request; routing-card.py skips it automatically"
+        },
+        {
+          "provider": "codex",
+          "model": "gpt-5.6-terra"
+        }
+      ],
+      "why": "Grok reprices the whole request 2x above 200K and is ineligible outright above 500K; Sonnet 5 has no length surcharge up to 1M and is the only seat here with a documented large context ceiling — AGY is deliberately not listed (its context limits are unmeasured, model-matrix.md Table 1; do not route a large-context ticket to an unmeasured ceiling). Gateway seats added ahead of Codex under 2026-09-25_v2 (Codex is RESERVE, tried only after the gateway pool is also exhausted)."
+    },
+    {
+      "id": "no-frontier-implementation",
+      "label": "Implementation ticket when AGY, Claude-in-AGY, and the gateway seats are ALL unavailable — Codex reserve of last resort",
+      "class": "WORKHORSE",
+      "kind": "settled",
+      "evidence": "policy (2026-09-25_v2 Codex-RESERVE rebalance) — same AGY-first order as standard-coding, now also naming Claude-in-AGY and making Codex the explicit final reserve instead of dropping the job into a park state",
+      "default": [
+        {
+          "provider": "agy",
+          "model": "gemini-3.8-flash-high",
+          "sandbox": "workspace-write"
+        }
+      ],
+      "fallbacks": [
+        {
+          "provider": "agy",
+          "model": "gemini-3.1-pro-high",
+          "sandbox": "workspace-write"
+        },
+        {
+          "provider": "agy",
+          "model": "claude-sonnet-4-6",
+          "sandbox": "workspace-write"
+        },
+        {
+          "provider": "gateway-openrouter",
+          "model": "sonnet",
+          "effort": "n/a"
+        },
+        {
+          "provider": "gateway-openrouter",
+          "model": "opus",
+          "effort": "n/a",
+          "note": "intra-provider fallback — live-tested 2026-09-25"
+        },
+        {
+          "provider": "gateway-api",
+          "model": "sonnet",
+          "effort": "n/a"
+        },
+        {
+          "provider": "gateway-api",
+          "model": "fable",
+          "effort": "n/a",
+          "note": "EXCLUDED 2026-09-28 — DEGRADED/UNVERIFIED (2 consecutive timeouts), see never_request; routing-card.py skips it automatically"
+        },
+        {
+          "provider": "codex",
+          "model": "gpt-5.6-terra"
+        }
+      ],
+      "why": "AGY is tried first and across its own tiers, including the audited Claude-bundled seat, before the gateway pool; Codex is appended as the true last resort under 2026-09-25_v2 rather than leaving this job to park — this job's very name ('AGY unavailable') is one of the explicit conditions the user gave for touching the Codex reserve, so it is the one non-hard-coding job where Codex may still appear automatically, always last."
+    },
+    {
+      "id": "triage",
+      "label": "Merging findings from 2+ reviewers, checking cited findings (Jev recipes 1-2, jev.md)",
+      "class": "DECISION",
+      "kind": "settled",
+      "evidence": "jev.md (optional, OFF by default — never request this unless the user opted in)",
+      "default": [
+        {
+          "provider": "jev",
+          "model": "jev",
+          "effort": "n/a"
+        }
+      ],
+      "fallbacks": [
+        {
+          "provider": "lead",
+          "model": "inline"
+        }
+      ],
+      "why": "~$0.0002 per call when opted in; shadow mode until a recipe graduates (jev.md). With Jev absent or disabled this row always falls through to 'lead: inline' — that is the normal, unremarkable case."
+    }
+  ],
+  "premium_models": {
+    "fable": "Claude Fable — ~2x Opus 5's price per token while scoring at or below it on the same capability index (model-matrix.md Table 2)"
+  },
+  "premium_rule": "Premium models are never used as subagents or workers unless the user approved them TWICE in this session (a yes to the ask, then a yes to one confirmation that names the model and its cost). Approval lasts only for the session, is never carried into another session, and is never inferred from a pre-approval flag. A LEAD that is itself a premium model (e.g. a Fable session) is fine; this rule governs dispatches only.",
+  "_policy_2026-11-06": "Verified live on this machine (Oracle) 2026-11-06: agy exposes only gemini-3.8-flash-low/medium/high, claude-sonnet-4-6, claude-opus-4-6-thinking, gpt-oss-120b-medium (gemini-3.7/3.6/3.1-pro are gone: 'not recognized'). All agy defaults moved to 3.8. Workers default to haiku + free seats per SKILL.md House policy."
+}

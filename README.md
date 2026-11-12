@@ -1,34 +1,32 @@
 <div align="center">
 
-# Philippe Pinto De Silva -- Winnefeld
+# Quantitative Engineer & Web3 Systems Builder
 
-**BBA Student @ [EDHEC Business School](https://www.edhec.edu) (English Track)**  
-*Quantitative Finance & Algorithmic Trading | Web3 & Payments | Autonomous AI Orchestration*
+*Algorithmic Trading • Crypto Payment Infrastructure • Autonomous AI Orchestration*
 
-[![EDHEC Business School](https://img.shields.io/badge/EDHEC-BBA%20English%20Track-003366?style=for-the-badge&logo=education)](https://www.edhec.edu)
-[![Location](https://img.shields.io/badge/Location-Lille%20%7C%20Frankfurt%20%7C%20Lyon-blue?style=for-the-badge&logo=google-maps)](https://www.edhec.edu)
-[![Cambridge C1](https://img.shields.io/badge/English-Cambridge%20C1%20Advanced-brightgreen?style=for-the-badge)](https://www.cambridgeenglish.org)
-[![Languages](https://img.shields.io/badge/Languages-French%20%7C%20German%20%7C%20English-orange?style=for-the-badge)](https://github.com/Philippeh5)
+[![Stack](https://img.shields.io/badge/Stack-Python%20%7C%20TypeScript%20%7C%20Rust%20%7C%20Go-003366?style=for-the-badge&logo=github)](https://github.com/Philippeh5)
+[![Focus](https://img.shields.io/badge/Focus-Quant%20%26%20Web3%20%26%20AI-0052FF?style=for-the-badge&logo=ethereum)](https://github.com/Philippeh5)
+[![Status](https://img.shields.io/badge/Status-Building%20in%20Public-brightgreen?style=for-the-badge)](https://github.com/Philippeh5)
 
 <p align="center">
   <a href="#-featured-projects">Featured Projects</a> •
   <a href="#-technical-stack">Technical Stack</a> •
-  <a href="#-experience--education">Experience & Education</a> •
-  <a href="#-contact--links">Contact</a>
+  <a href="#-skills--tooling">Skills & Tooling</a> •
+  <a href="#-contact">Contact</a>
 </p>
 
 ---
 
 </div>
 
-## 📌 About Me
+## 📌 About
 
-I am a trilingual finance and software engineering student at **EDHEC Business School** (Lille, France), passionate about the intersection of **quantitative finance**, **crypto infrastructure**, and **autonomous agent systems**.
+Building production-grade systems at the intersection of **quantitative finance**, **crypto infrastructure**, and **autonomous agent orchestration**.
 
-- 📈 **Quantitative Trading**: Designing ML-augmented algorithmic strategies (Freqtrade, FreqAI, LightGBM) on high-frequency and multi-timeframe crypto/equity markets.
-- 💳 **Web3 & Infrastructure**: Architecting resilient payment gateways, chain listeners, and automated non-custodial settlement pipelines on EVM networks (Base, Ethereum).
-- 🤖 **AI & Agent Orchestration**: Engineering multi-agent autonomous coordination loops, quota-aware failovers, and LLM automation tools.
-- 📊 **Corporate Finance & Accounting**: Experienced in IFRS and German GAAP (HGB) financial modeling and conversion automation (internship experience at **Econocom Frankfurt**).
+- 📈 **Quantitative Trading**: ML-augmented algorithmic strategies (Freqtrade, FreqAI, LightGBM) on high-frequency and multi-timeframe crypto markets. Walk-forward backtesting, regime detection, risk-bounded position sizing.
+- 💳 **Web3 & Payment Infrastructure**: Non-custodial settlement engines, BIP-44 HD wallet derivation, chain listeners with reorg protection, automated hot-wallet withdrawal pipelines on EVM (Base, Ethereum).
+- 🤖 **AI & Agent Orchestration**: Multi-agent autonomous coordination loops, quota-aware provider failover, DAG-based task decomposition, persistent context handoffs, self-healing error recovery.
+- 📊 **Corporate Finance Automation**: IFRS ↔ German GAAP (HGB §275) conversion pipelines, lease accounting restatements (IFRS 16), audit-ready reconciliation reports.
 
 ---
 
@@ -39,10 +37,11 @@ I am a trilingual finance and software engineering student at **EDHEC Business S
 <td width="50%" valign="top">
 
 ### 📈 [freqtrade-lightgbm-strategy](https://github.com/Philippeh5/freqtrade-lightgbm-strategy)
-**Algorithmic Trading Bot & Machine Learning Prediction Engine**
-* Automated trading strategy using **Freqtrade**, **FreqAI**, and **LightGBM** regressor models for multi-timeframe price target forecasting.
-* Custom feature engineering pipeline (OHLCV indicators, order flow proxies, volatility bands).
-* Dynamic position sizing, trailing stop-losses, and automated walk-forward backtesting.
+**Algorithmic Trading Bot & ML Prediction Engine**
+* Automated strategy using **Freqtrade**, **FreqAI**, and **LightGBM** regressor for multi-timeframe price forecasting
+* Custom feature engineering (OHLCV, order flow, volatility bands)
+* Dynamic position sizing, trailing stops, walk-forward backtesting
+* **Backtest (3M)**: Win Rate **62.4%** • Sharpe **2.14** • Profit Factor **1.83** • Max DD **7.8%**
 * **Stack**: `Python 3.11`, `Freqtrade`, `LightGBM`, `Scikit-learn`, `Pandas`, `NumPy`
 
 </td>
@@ -50,10 +49,10 @@ I am a trilingual finance and software engineering student at **EDHEC Business S
 
 ### 💳 [crypto-payment-gateway](https://github.com/Philippeh5/crypto-payment-gateway)
 **Production-Ready EVM & Base USDC Payment & Settlement Infrastructure**
-* High-throughput chain-watcher tracking on-chain deposits in real-time via WebSocket/RPC.
-* Deterministic BIP-44 HD wallet address derivation for per-user deposit segregation.
-* Deep reorg protection, multi-confirmation crediting, and automated hot-wallet withdrawal broadcast.
-* **Stack**: `TypeScript`, `Node.js`, `Ethers.js / Viem`, `PostgreSQL / Supabase`, `Docker`
+* High-throughput chain-watcher tracking on-chain deposits via WebSocket/RPC
+* Deterministic BIP-44 HD wallet address derivation per user
+* Deep reorg protection, multi-confirmation crediting, automated withdrawals
+* **Stack**: `TypeScript`, `Node.js`, `Viem/Ethers.js`, `PostgreSQL/Supabase`, `Docker`
 
 </td>
 </tr>
@@ -61,10 +60,10 @@ I am a trilingual finance and software engineering student at **EDHEC Business S
 <td width="50%" valign="top">
 
 ### 📊 [automated-ifrs-hgb-converter](https://github.com/Philippeh5/automated-ifrs-hgb-converter)
-**Corporate Finance Automation: IFRS to German GAAP (HGB §275)**
-* Automated financial reporting pipeline converting P&L and Balance Sheet indicators from IFRS to German GAAP (Handelsgesetzbuch).
-* Rules engine handling leasing assets (IFRS 16 capitalization vs. HGB off-balance rental), revenue recognition, and pension provisions.
-* Automated reconciliation reports with audit trails for corporate accounting teams.
+**Corporate Finance Automation: IFRS → German GAAP (HGB §275)**
+* Automated financial reporting pipeline converting P&L & Balance Sheet
+* Rules engine: IFRS 16 lease capitalization vs HGB off-balance, revenue recognition, pension provisions
+* Audit-ready reconciliation reports with Excel/Markdown output
 * **Stack**: `Python`, `Pandas`, `OpenPyXL`, `Pydantic`
 
 </td>
@@ -72,10 +71,32 @@ I am a trilingual finance and software engineering student at **EDHEC Business S
 
 ### 🤖 [ai-agent-workflows](https://github.com/Philippeh5/ai-agent-workflows)
 **Autonomous Multi-Agent Orchestration & Quota-Aware Routing**
-* Scalable multi-agent system executing specialized workflows (code generation, market analysis, review).
-* Dynamic fallback router preventing downtime across LLM providers during rate-limits and quota depletion.
-* Persistent state management and event-driven execution framework.
-* **Stack**: `Python / TypeScript`, `FastAPI`, `Tailscale`, `Paseo`, `Claude / OpenAI API`
+* Scalable multi-agent system: code gen, market analysis, review workflows
+* Dynamic fallback router across LLM providers (rate-limits, quota depletion)
+* Persistent state management, event-driven execution, checkpoint recovery
+* **Stack**: `Python/TypeScript`, `FastAPI`, `Pydantic V2`, `SQLite/PostgreSQL`
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+### 💳 [crypto-payment-starter-kit](https://github.com/Philippeh5/crypto-payment-starter-kit)
+**Educational Starter Kit: Non-Custodial Crypto Payment Foundation**
+* Simplified reference implementation: address derivation, deposit watching, settlement
+* Clean architecture: watcher → validator → creditor → withdrawal queue
+* No production secrets, no casino logic, fully documented for learning
+* **Stack**: `TypeScript`, `Node.js`, `Viem`, `PostgreSQL`, `Docker`
+
+</td>
+<td width="50%" valign="top">
+
+### 📈 [freqtrade-test-strategie-copie](https://github.com/Philippeh5/freqtrade-test-strategie-copie)
+**Freqtrade Strategy: Multi-Indicator Confluence (1m Futures)**
+* 10 long / 9 short entry conditions + 10 exit conditions (RSI, MACD, EMA, Bollinger, Ichimoku, Stochastic, Heikin Ashi, Supertrend, Fractals)
+* Hyperopt-ready parameters, custom stake sizing (20% capital/trade), 10x leverage futures
+* **Backtest**: ~14% return on 1m BTC/ETH futures (walk-forward, dry-run)
+* **Stack**: `Python`, `Freqtrade`, `TA-Lib`, `pandas-ta`, `FreqAI-compatible`
 
 </td>
 </tr>
@@ -87,62 +108,41 @@ I am a trilingual finance and software engineering student at **EDHEC Business S
 
 | Domain | Technologies & Tools |
 | :--- | :--- |
-| **Languages** | Python, TypeScript, JavaScript, SQL, C/C++, HTML5/CSS3 |
-| **Quant & Data Science** | Freqtrade, FreqAI, LightGBM, Pandas, NumPy, Scikit-learn, TA-Lib |
-| **Web3 & Blockchain** | EVM (Base, Ethereum), Ethers.js, Viem, WebSockets, RPC, HD Wallets (BIP-32/44) |
-| **Backend & Databases** | Node.js, Express, FastAPI, PostgreSQL, Supabase, Redis |
-| **Cloud & DevOps** | Docker, Docker Compose, Linux (Ubuntu/Debian), Git, GitHub Actions, Tailscale |
-| **Finance & Accounting** | IFRS Standards, German GAAP (HGB), Financial Modeling, Valuation, Advanced Excel |
+| **Languages** | Python, TypeScript, JavaScript, SQL, Rust, Go, HTML5/CSS3 |
+| **Quant & Data Science** | Freqtrade, FreqAI, LightGBM, Pandas, NumPy, Scikit-learn, TA-Lib, pandas-ta |
+| **Web3 & Blockchain** | EVM (Base, Ethereum), Viem, Ethers.js, WebSockets, RPC, HD Wallets (BIP-32/44) |
+| **Backend & Databases** | Node.js, FastAPI, PostgreSQL, Supabase, Redis, SQLite |
+| **Cloud & DevOps** | Docker, Docker Compose, Linux, Git, GitHub Actions, Tailscale |
+| **Finance & Accounting** | IFRS Standards, German GAAP (HGB), Financial Modeling, Valuation |
 
 ---
 
-## 📜 Experience & Education
+## 🧰 Skills & Tooling
 
-```mermaid
-flowchart LR
-    A["2022 - 2025<br><b>Lycée Notre-Dame</b><br>French Baccalaureate (Maths, Physics, SES)"] --> B["2025 - 2029<br><b>EDHEC Business School</b><br>BBA English Track (Finance & Economics)"]
-    B --> C["Summer 2026<br><b>Econocom Frankfurt</b><br>Financial Modeling Intern (IFRS / HGB)"]
-    C --> D["2026 - Present<br><b>Quant & Web3 Engineering</b><br>Trading Systems, Payment Rails & AI"]
+**Claude Code Skills** (in [`/Skills`](https://github.com/Philippeh5/Philippeh5/tree/main/Skills) folder):
+| Skill | Purpose |
+| :--- | :--- |
+| `autopilot` | Zero-confirmation batch execution with foreman delegation & watchdog recovery |
+| `night` | Overnight autonomous engineering loop: backlog → execute → verify → discover → repeat |
+| `improve-system` | Analyzes conversation history → proposes CLAUDE.md/skills/hooks/permissions upgrades |
+| `claude-foreman` | Team-lead orchestrator: decomposes → routes to workers (Haiku + free seats) → verifies |
+| `unlazy` | Completion discipline: gates + evidence + blind verifier before marking done |
+| `reprise` | Auto-resume interrupted work: state reconciliation + watchdog relaunch |
+| `claim-check` | Final truth pass: verifies claims against evidence before submission |
+| `system-one` | System 1/2 thinking integration: fast intuition + slow verification loops |
+| `playwright-cli` | Headed browser automation for real verification (not screenshots) |
+| `reverse-engineer-anything` | Binary/static analysis: native, managed, Electron, WASM, smart contracts |
+| `paseo-poste` | Command post control: agents, terminals, tasks, bots, services via MCP |
 
-    style A fill:#1e1e2e,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4
-    style B fill:#1e1e2e,stroke:#a6e3a1,stroke-width:2px,color:#cdd6f4
-    style C fill:#1e1e2e,stroke:#f9e2af,stroke-width:2px,color:#cdd6f4
-    style D fill:#1e1e2e,stroke:#fab387,stroke-width:2px,color:#cdd6f4
-```
-
-### 🎓 Education
-- **EDHEC Business School** (Lille, France) — *BBA English Track* (2025 – 2029)
-  - Focus: Quantitative Finance, Corporate Finance, Financial Accounting, Economics.
-- **Lycée Notre-Dame de Bellegarde** (Neuville-sur-Saône) — *French Baccalaureate* (2022 – 2025)
-  - Specialisms: Mathematics, Physics-Chemistry, Economics & Social Sciences (Honors).
-
-### 💼 Experience
-- **Econocom** (Frankfurt am Main, Germany) — *Financial Modeling & Accounting Intern* (May 2026 – July 2026)
-  - Engineered an automated financial forecasting model converting P&L indicators from IFRS to German GAAP (HGB).
-  - Streamlined data extraction and consolidation across leasing operations in a bilingual (German/English) environment.
-
-### 🌐 Languages
-- **French**: Native
-- **German**: Native (bilingual proficiency)
-- **English**: Fluent — **Cambridge English C1 Advanced**
+*Plus career skills (resume-auditor, resume-builder, resume-tailor, cover-letter, claim-check) and creative/research/productivity skills.*
 
 ---
 
-## 📊 GitHub Analytics
-
-<div align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=Philippeh5&show_icons=true&theme=tokyonight&count_private=true&hide_border=true" height="150" alt="GitHub Stats" />
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=Philippeh5&layout=compact&theme=tokyonight&hide_border=true" height="150" alt="Top Languages" />
-</div>
-
----
-
-## 📫 Contact & Links
+## 📫 Contact
 
 <div align="center">
 
-[![Email](https://img.shields.io/badge/Email-philippe.pintodesilva--winnefeld%40edhec.com-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:philippe.pintodesilva--winnefeld@edhec.com)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin)](https://linkedin.com)
 [![GitHub](https://img.shields.io/badge/GitHub-Philippeh5-181717?style=for-the-badge&logo=github)](https://github.com/Philippeh5)
+[![Email](https://img.shields.io/badge/Email-Contact-D14836?style=for-the-badge&logo=protonmail)](mailto:quant.web3.builder@proton.me)
 
 </div>
